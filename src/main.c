@@ -10,46 +10,26 @@ typedef struct PixelBuf {
     uint32_t *pixels;
 } PixelBuf;
 
-typedef struct Canvas {
-    PixelBuf pixelbuf;
-} Canvas;
-
-typedef struct Rect {
-    PixelBuf pixelbuf;
-    int pos_x;
-    int pos_y;
-} Rect;
-
-Rect *create_rect(size_t width, size_t height, int pos_x, int pos_y)
+PixelBuf *create_pixelbuf(size_t width, size_t height)
 {
-    Rect *r = malloc(sizeof(Rect));
-    if (!r) return NULL;
+    PixelBuf *pb = malloc(sizeof(PixelBuf));
+    if (!pb) return NULL;
 
-    r->pixelbuf.width = width;
-    r->pixelbuf.height = height;
-    r->pos_x = pos_x;
-    r->pos_y = pos_y;
-    r->pixelbuf.pixels = malloc(width*height*sizeof(uint32_t));
-    if (!r->pixelbuf.pixels) {
-        free(r);
+    pb->width = width;
+    pb->height = height;
+    pb->pixels = malloc(width*height*sizeof(uint32_t));
+    if (!pb->pixels) {
+        free(pb);
         return NULL;
     }
-    return r;
+    return pb;
 }
 
-Canvas *create_canvas(size_t width, size_t height)
+void free_pixelbuf(PixelBuf *pb)
 {
-    Canvas *c = malloc(sizeof(Canvas));
-    if (!c) return NULL;
-
-    c->pixelbuf.width = width;
-    c->pixelbuf.height = height;
-    c->pixelbuf.pixels = malloc(width*height*sizeof(uint32_t));
-    if (!c->pixelbuf.pixels) {
-        free(c);
-        return NULL;
-    }
-    return c;
+    if (!pb) return;
+    free(pb->pixels);
+    free(pb);
 }
 
 void fill_pixels(PixelBuf *pixels, uint32_t color)
@@ -59,11 +39,26 @@ void fill_pixels(PixelBuf *pixels, uint32_t color)
     }
 }
 
+void fill_rectangle(PixelBuf *pixels, int pos_x, int pos_y, size_t rect_w, size_t rect_h, uint32_t color)
+{
+    for (int delta_y = 0; delta_y < (int) rect_h; ++delta_y) {
+        int y = pos_y + delta_y;
+        if (0 <= y && y < pixels->height) {
+            for (int delta_x = 0; delta_x < (int) rect_w; ++delta_x) {
+                int x = pos_x + delta_x;
+                if (0 <= x && x < (int) pixels->width) {
+                    pixels->pixels[y*pixels->width + x] = color;
+                }
+            }
+        }
+    }
+}
+
 typedef int Errno;
 
 #define return_defer(value) do {result = (value); goto defer; } while (0)
 
-Errno save_canvas_to_ppm_file(Canvas *c, const char *file_path)
+Errno save_to_ppm_file(PixelBuf *pb, const char *file_path)
 {
     int result = 0;
     FILE *f = NULL;
@@ -72,11 +67,11 @@ Errno save_canvas_to_ppm_file(Canvas *c, const char *file_path)
         f = fopen(file_path, "wb");
         if (f == NULL) { return_defer(errno); }
 
-        fprintf(f, "P6\n%zu %zu\n 255\n", c->pixelbuf.width, c->pixelbuf.height);
+        fprintf(f, "P6\n%zu %zu\n 255\n", pb->width, pb->height);
         if (ferror(f)) { return_defer(errno); }
 
-        for(size_t i = 0; i < c->pixelbuf.width*c->pixelbuf.height; ++i) {
-            uint32_t pixel = c->pixelbuf.pixels[i];
+        for(size_t i = 0; i < pb->width*pb->height; ++i) {
+            uint32_t pixel = pb->pixels[i];
             uint8_t bytes[3] = {
                 (pixel>>(8*0))&0xFF,
                 (pixel>>(8*1))&0xFF,
@@ -96,13 +91,22 @@ int main(void)
 {
     printf("Hello from C\n");
 
-    Canvas *my_canvi = create_canvas(800, 600);
-    fill_pixels(&my_canvi->pixelbuf, 0xFF00FF00);
-    char *file_path = "output.ppm";
-    Errno err = save_canvas_to_ppm_file(my_canvi, file_path);
-    if (err) {
-        fprintf(stderr, "ERROR: could not save file %s: %s\n", file_path, strerror(errno));
+    PixelBuf *my_pb = create_pixelbuf(800, 600);
+    if(!my_pb) {
+        fprintf(stderr, "Failed to allocate PixelBuf\n");
         return 1;
     }
+
+    fill_pixels(my_pb, 0xFF202020);
+    fill_rectangle(my_pb, 0, 0, 100, 100, 0xFFFF0000);
+
+    char *file_path = "output.ppm";
+    Errno err = save_to_ppm_file(my_pb, file_path);
+    if (err) {
+        fprintf(stderr, "ERROR: could not save file %s: %s\n", file_path, strerror(errno));
+        free_pixelbuf(my_pb);
+        return 1;
+    }
+    free_pixelbuf(my_pb);
     return 0;
 }
