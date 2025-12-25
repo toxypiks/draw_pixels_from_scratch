@@ -22,6 +22,14 @@ target_include_directories(draw_pixel
  ${DRAW_PIXEL}
 )
 
+# Header-only library
+add_library(helper INTERFACE)
+
+target_include_directories(helper
+  INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
 set(MAIN_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
   )
@@ -34,4 +42,5 @@ target_sources(main
 
 target_link_libraries(main
   draw_pixel
+  helper
 )
