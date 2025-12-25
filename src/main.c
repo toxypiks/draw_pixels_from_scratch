@@ -16,11 +16,11 @@ typedef struct Canvas {
 
 typedef struct Rect {
     PixelBuf pixelbuf;
-    size_t pos_x;
-    size_t pos_y;
+    int pos_x;
+    int pos_y;
 } Rect;
 
-Rect *create_rect(size_t width, size_t height, size_t pos_x, size_t pos_y)
+Rect *create_rect(size_t width, size_t height, int pos_x, int pos_y)
 {
     Rect *r = malloc(sizeof(Rect));
     if (!r) return NULL;
