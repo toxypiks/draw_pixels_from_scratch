@@ -41,15 +41,17 @@ void fill_pixels(PixelBuf *pixels, uint32_t color)
 
 void fill_rectangle(PixelBuf *pixels, int pos_x, int pos_y, size_t rect_w, size_t rect_h, uint32_t color)
 {
-    for (int delta_y = 0; delta_y < (int) rect_h; ++delta_y) {
-        int y = pos_y + delta_y;
-        if (0 <= y && y < pixels->height) {
-            for (int delta_x = 0; delta_x < (int) rect_w; ++delta_x) {
-                int x = pos_x + delta_x;
-                if (0 <= x && x < (int) pixels->width) {
-                    pixels->pixels[y*pixels->width + x] = color;
-                }
-            }
+    // Clipping of coordinates
+    int start_x = pos_x < 0 ? 0 : pos_x;
+    int end_x   = (pos_x + (int)rect_w > (int)pixels->width) ? (int)pixels->width : pos_x + (int)rect_w;
+
+    int start_y = pos_y < 0 ? 0 : pos_y;
+    int end_y   = (pos_y + (int)rect_h > (int)pixels->height) ? (int)pixels->height : pos_y + (int)rect_h;
+
+    for (int y = start_y; y < end_y; ++y) {
+        int row_offset = y * pixels->width;
+        for (int x = start_x; x < end_x; ++x) {
+            pixels->pixels[row_offset + x] = color;
         }
     }
 }
@@ -98,7 +100,7 @@ int main(void)
     }
 
     fill_pixels(my_pb, 0xFF202020);
-    fill_rectangle(my_pb, 0, 0, 100, 100, 0xFFFF0000);
+    fill_rectangle(my_pb, my_pb->width/2 - 50, my_pb->height/2 -50, 100, 100, 0xFFFF0000);
 
     char *file_path = "output.ppm";
     Errno err = save_to_ppm_file(my_pb, file_path);
