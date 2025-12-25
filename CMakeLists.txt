@@ -44,3 +44,13 @@ target_link_libraries(main
   draw_pixel
   helper
 )
+
+set(2D_SRC
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/2d_thinking_exercises.c
+  )
+
+add_executable(2d_thinking_exercises)
+target_sources(2d_thinking_exercises
+ PRIVATE
+  ${2D_SRC}
+)
