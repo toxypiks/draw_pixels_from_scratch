@@ -50,6 +50,25 @@ void fill_rectangle(PixelBuf *pixels, int pos_x, int pos_y, size_t rect_w, size_
     }
 }
 
+void fill_checkboard(PixelBuf *pb, int cols, int rows, uint32_t color)
+{
+    int cell_width = pb->width/cols;
+    int cell_height = pb->height/rows;
+
+    uint32_t rect_color;
+
+    for (int y = 0; y < rows; ++y) {
+        for (int x = 0; x < cols; ++x) {
+            if((x + y)%2 == 0) {
+                rect_color = color;
+            } else {
+                rect_color = 0xFF000000;
+            }
+            fill_rectangle(pb, x*cell_width, y*cell_height, cell_width, cell_height, rect_color);
+        }
+    }
+}
+
 Errno save_to_ppm_file(PixelBuf *pb, const char *file_path)
 {
     int result = 0;
