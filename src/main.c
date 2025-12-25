@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <errno.h>
+#include <string.h>
 
 typedef struct Canvas {
     size_t width;
@@ -30,33 +32,31 @@ void fill_canvas(Canvas *c, uint32_t color)
     }
 }
 
-int save_canvas_to_ppm_file(Canvas *c, const char *file_path)
+typedef int Errno;
+
+#define return_defer(value) do {result = (value); goto defer; } while (0)
+
+Errno save_canvas_to_ppm_file(Canvas *c, const char *file_path)
 {
     int result = 0;
-    FILE *f = fopen(file_path, "wb");
+    FILE *f = NULL;
 
-    if (f == NULL) {
-        result = -1;
-        goto defer;
-    }
+    {
+        f = fopen(file_path, "wb");
+        if (f == NULL) { return_defer(errno); }
 
-    fprintf(f, "P6\n%zu %zu\n 255\n", c->width, c->height);
-    if (ferror(f)) {
-        result = -1;
-        goto defer;
-    }
+        fprintf(f, "P6\n%zu %zu\n 255\n", c->width, c->height);
+        if (ferror(f)) { return_defer(errno); }
 
-    for(size_t i = 0; i < c->width*c->height; ++i) {
-        uint32_t pixel = c->pixels[i];
-        uint8_t bytes[3] = {
-            (pixel>>(8*0))&0xFF,
-            (pixel>>(8*1))&0xFF,
-            (pixel>>(8*2))&0xFF,
-        };
-        fwrite(bytes, sizeof(bytes), 1, f);
-        if (ferror(f)) {
-            result = -1;
-            goto defer;
+        for(size_t i = 0; i < c->width*c->height; ++i) {
+            uint32_t pixel = c->pixels[i];
+            uint8_t bytes[3] = {
+                (pixel>>(8*0))&0xFF,
+                (pixel>>(8*1))&0xFF,
+                (pixel>>(8*2))&0xFF,
+            };
+            fwrite(bytes, sizeof(bytes), 1, f);
+            if (ferror(f)) { return_defer(errno); }
         }
     }
 
@@ -71,7 +71,11 @@ int main(void)
 
     Canvas *my_canvi = create_canvas(800, 600);
     fill_canvas(my_canvi, 0xFF00FF00);
-    save_canvas_to_ppm_file(my_canvi, "output.ppm");
-
+    char *file_path = "output.ppm";
+    Errno err = save_canvas_to_ppm_file(my_canvi, file_path);
+    if (err) {
+        fprintf(stderr, "ERROR: could not save file %s: %s\n", file_path, strerror(errno));
+        return 1;
+    }
     return 0;
 }
