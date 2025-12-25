@@ -4,31 +4,58 @@
 #include <errno.h>
 #include <string.h>
 
-typedef struct Canvas {
+typedef struct PixelBuf {
     size_t width;
     size_t height;
     uint32_t *pixels;
+} PixelBuf;
+
+typedef struct Canvas {
+    PixelBuf pixelbuf;
 } Canvas;
+
+typedef struct Rect {
+    PixelBuf pixelbuf;
+    size_t pos_x;
+    size_t pos_y;
+} Rect;
+
+Rect *create_rect(size_t width, size_t height, size_t pos_x, size_t pos_y)
+{
+    Rect *r = malloc(sizeof(Rect));
+    if (!r) return NULL;
+
+    r->pixelbuf.width = width;
+    r->pixelbuf.height = height;
+    r->pos_x = pos_x;
+    r->pos_y = pos_y;
+    r->pixelbuf.pixels = malloc(width*height*sizeof(uint32_t));
+    if (!r->pixelbuf.pixels) {
+        free(r);
+        return NULL;
+    }
+    return r;
+}
 
 Canvas *create_canvas(size_t width, size_t height)
 {
     Canvas *c = malloc(sizeof(Canvas));
     if (!c) return NULL;
 
-    c->width = width;
-    c->height = height;
-    c->pixels = malloc(width*height*sizeof(uint32_t));
-    if (!c->pixels) {
+    c->pixelbuf.width = width;
+    c->pixelbuf.height = height;
+    c->pixelbuf.pixels = malloc(width*height*sizeof(uint32_t));
+    if (!c->pixelbuf.pixels) {
         free(c);
         return NULL;
     }
     return c;
 }
 
-void fill_canvas(Canvas *c, uint32_t color)
+void fill_pixels(PixelBuf *pixels, uint32_t color)
 {
-    for (size_t i = 0; i < c->width*c->height; ++i) {
-        c->pixels[i] = color;
+    for (size_t i = 0; i < pixels->width*pixels->height; ++i) {
+        pixels->pixels[i] = color;
     }
 }
 
@@ -45,11 +72,11 @@ Errno save_canvas_to_ppm_file(Canvas *c, const char *file_path)
         f = fopen(file_path, "wb");
         if (f == NULL) { return_defer(errno); }
 
-        fprintf(f, "P6\n%zu %zu\n 255\n", c->width, c->height);
+        fprintf(f, "P6\n%zu %zu\n 255\n", c->pixelbuf.width, c->pixelbuf.height);
         if (ferror(f)) { return_defer(errno); }
 
-        for(size_t i = 0; i < c->width*c->height; ++i) {
-            uint32_t pixel = c->pixels[i];
+        for(size_t i = 0; i < c->pixelbuf.width*c->pixelbuf.height; ++i) {
+            uint32_t pixel = c->pixelbuf.pixels[i];
             uint8_t bytes[3] = {
                 (pixel>>(8*0))&0xFF,
                 (pixel>>(8*1))&0xFF,
@@ -70,7 +97,7 @@ int main(void)
     printf("Hello from C\n");
 
     Canvas *my_canvi = create_canvas(800, 600);
-    fill_canvas(my_canvi, 0xFF00FF00);
+    fill_pixels(&my_canvi->pixelbuf, 0xFF00FF00);
     char *file_path = "output.ppm";
     Errno err = save_canvas_to_ppm_file(my_canvi, file_path);
     if (err) {
