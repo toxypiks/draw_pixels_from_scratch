@@ -16,6 +16,7 @@ void fill_pixels(PixelBuf *pixels, uint32_t color);
 void fill_rectangle(PixelBuf *pixels, int pos_x, int pos_y, size_t rect_w, size_t rect_h, uint32_t color);
 void fill_checkboard(PixelBuf *pb, int cols, int rows, uint32_t color);
 void fill_circle(PixelBuf *pb, int pos_x, int pos_y, int radius, uint32_t color);
+void fill_circle_checkboard(PixelBuf *pb, int cols, int rows, uint32_t color);
 
 Errno save_to_ppm_file(PixelBuf *pb, const char *file_path);
 

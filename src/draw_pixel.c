@@ -89,6 +89,23 @@ void fill_circle(PixelBuf *pb, int pos_x, int pos_y, int radius, uint32_t color)
     }
 }
 
+void fill_circle_checkboard(PixelBuf *pb, int cols, int rows, uint32_t color)
+{
+    int cell_width = pb->width/cols;
+    int cell_height = pb->height/rows;
+
+    fill_pixels(pb, 0xFF202020);
+
+    for(int y = 0; y < rows; ++y) {
+        for (int x = 0; x < cols; ++x) {
+            int radius = cell_width;
+            if (cell_height < radius) {
+                radius = cell_height;
+            }
+            fill_circle(pb, x*cell_width + cell_width/2, y*cell_height + cell_height/2, radius/2, color);
+        }
+    }
+}
 
 Errno save_to_ppm_file(PixelBuf *pb, const char *file_path)
 {
