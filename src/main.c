@@ -17,7 +17,7 @@ int main(void)
     }
 
     //call your drawing function you wanna test here
-    fill_circle_checkboard(my_pb, 8, 8, 0xFF00FF00);
+    fill_circle_checkboard(my_pb, 8, 6, 0xFF00FF00);
 
     char *file_path = "output.ppm";
     Errno err = save_to_ppm_file(my_pb, file_path);
