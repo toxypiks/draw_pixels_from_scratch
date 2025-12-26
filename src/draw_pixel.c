@@ -69,6 +69,27 @@ void fill_checkboard(PixelBuf *pb, int cols, int rows, uint32_t color)
     }
 }
 
+void fill_circle(PixelBuf *pb, int pos_x, int pos_y, int radius, uint32_t color)
+{
+    // Clipping coordinates
+    int x1 = pos_x < 0 ? 0 : pos_x - radius;
+    int y1 = pos_y < 0 ? 0 : pos_y - radius;
+
+    int x2 = (pos_x + radius) > pb->width ? pb->width - 1: pos_x + radius;
+    int y2 = (pos_y + radius) > pb->height ? pb->height - 1 : pos_y + radius;
+
+    for (int y = y1; y <= y2; ++y) {
+        for (int x = x1; x <= x2; ++x) {
+            int dx = x - pos_x;
+            int dy = y - pos_y;
+            if ((dx*dx + dy*dy) <= radius*radius) {
+                pb->pixels[y*pb->width + x] = color;
+            }
+        }
+    }
+}
+
+
 Errno save_to_ppm_file(PixelBuf *pb, const char *file_path)
 {
     int result = 0;

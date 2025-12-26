@@ -6,26 +6,6 @@
 #include <math.h>
 #include "draw_pixel.h"
 
-void fill_circle(PixelBuf *pb, int pos_x, int pos_y, int radius, uint32_t color)
-{
-    // Clipping coordinates
-    int x1 = pos_x < 0 ? 0 : pos_x - radius;
-    int y1 = pos_y < 0 ? 0 : pos_y - radius;
-
-    int x2 = (pos_x + radius) > pb->width ? pb->width - 1: pos_x + radius;
-    int y2 = (pos_y + radius) > pb->height ? pb->height - 1 : pos_y + radius;
-
-    for (int y = y1; y <= y2; ++y) {
-        for (int x = x1; x <= x2; ++x) {
-            int dx = x - pos_x;
-            int dy = y - pos_y;
-            if ((dx*dx + dy*dy) <= radius*radius) {
-                pb->pixels[y*pb->width + x] = color;
-            }
-        }
-    }
-}
-
 int main(void)
 {
     printf("Hello from C\n");
@@ -36,12 +16,12 @@ int main(void)
         return 1;
     }
 
-    fill_pixels(my_pb, 0xFF202020);
+    //fill_pixels(my_pb, 0xFF202020);
     //fill_rectangle(my_pb, my_pb->width/2 - 50, my_pb->height/2 -50, 100, 100, 0xFFFF0000);
 
     //fill_rectangle(my_pb, my_pb->width/2 - 100, my_pb->height/2 -100, 100, 100, 0xFF00FF00);
 
-    fill_circle(my_pb, my_pb->width/2, my_pb->height/2, 10, 0xFF00FF00);
+    fill_circle(my_pb, my_pb->width/2, my_pb->height/2, 100, 0xFF00FF00);
     char *file_path = "output.ppm";
     Errno err = save_to_ppm_file(my_pb, file_path);
     if (err) {
