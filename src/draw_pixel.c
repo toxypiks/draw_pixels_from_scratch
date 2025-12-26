@@ -89,6 +89,12 @@ void fill_circle(PixelBuf *pb, int pos_x, int pos_y, int radius, uint32_t color)
     }
 }
 
+float lerpf(float a, float b, float t)
+{
+    return a + (b - a)*t;
+}
+
+
 void fill_circle_checkboard(PixelBuf *pb, int cols, int rows, uint32_t color)
 {
     if (!pb || cols <= 0 || rows <= 0) return;
@@ -98,6 +104,10 @@ void fill_circle_checkboard(PixelBuf *pb, int cols, int rows, uint32_t color)
 
     for (int y = 0; y < rows; ++y) {
         for (int x = 0; x < cols; ++x) {
+            float u = (float)x/(float)cols; // 0..1
+            float v = (float)y/(float)rows; // 0..1
+            float t = (u + v)/2; // 0..1
+
             // center of cell
             int cx = x * cell_width + cell_width / 2;
             int cy = y * cell_height + cell_height / 2;
@@ -111,7 +121,7 @@ void fill_circle_checkboard(PixelBuf *pb, int cols, int rows, uint32_t color)
             if (cx + radius >= pb->width)  radius = pb->width - 1 - cx;
             if (cy + radius >= pb->height) radius = pb->height - 1 - cy;
 
-            fill_circle(pb, cx, cy, radius, color);
+            fill_circle(pb, cx, cy, (int)lerpf(radius/2, radius, t), color);
         }
     }
 }
