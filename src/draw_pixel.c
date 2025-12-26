@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "draw_pixel.h"
+#include "helper.h"
 
 PixelBuf *create_pixelbuf(size_t width, size_t height)
 {
@@ -88,12 +89,6 @@ void fill_circle(PixelBuf *pb, int pos_x, int pos_y, int radius, uint32_t color)
         }
     }
 }
-
-float lerpf(float a, float b, float t)
-{
-    return a + (b - a)*t;
-}
-
 
 void fill_circle_checkboard(PixelBuf *pb, int cols, int rows, uint32_t color)
 {

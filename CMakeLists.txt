@@ -19,15 +19,23 @@ target_sources(draw_pixel
 
 target_include_directories(draw_pixel
  PRIVATE
- ${DRAW_PIXEL}
+ ${DRAW_PIXEL_SOURCES}
 )
 
-# Header-only library
-add_library(helper INTERFACE)
+set(HELPER_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/helper.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/helper.h
+)
+
+add_library(helper)
+target_sources(helper
+ PRIVATE
+  ${HELPER_SOURCES}
+  )
 
 target_include_directories(helper
-  INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+ PRIVATE
+ ${HELPER_SOURCES}
 )
 
 set(MAIN_SRC

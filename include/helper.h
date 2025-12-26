@@ -7,4 +7,6 @@ typedef int Errno;
 
 #define return_defer(value) do {result = (value); goto defer; } while (0)
 
+float lerpf(float a, float b, float t);
+
 #endif // HELPER_H_
