@@ -43,6 +43,7 @@ target_sources(main
 target_link_libraries(main
   draw_pixel
   helper
+  m
 )
 
 set(2D_SRC
