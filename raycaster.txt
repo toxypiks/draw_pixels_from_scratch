@@ -1,0 +1,31 @@
+### Raycaster Implementation
+
+First you create a map with values. Every value is meant to correspond to a color within the pixel buffer.
+
+Example:
+
+map->width = 10
+cells go from 0..9
+
+pb->width = 100
+pixel go from 0..99
+
+One map cell has a width of 10 pixel.
+
+map_x = x * map->width / pb->width
+map_x = x * 10/100
+
+x = 10
+map_x = 10 * 10/100 = 1 all values x > 10 are 0
+
+x = 20 -> map_x = 2 and so on..
+
+Pixel:   0.........9|10........19|20........29|...
+Map-X:   0           1           2
+
+Strategy to fill pixel buffer:
+
+Iterate through buffer pixel buffer and  look up where within the map the current pixel is and set color depending on the map value.
+
+
+

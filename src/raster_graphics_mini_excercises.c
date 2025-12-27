@@ -71,11 +71,6 @@ void fill_pixels(PixelBuf *pb, uint32_t color)
     }
 }
 
-typedef struct Vector2 {
-    int x;
-    int y;
-} Vector2;
-
 void draw_horizontal_line(PixelBuf *pb, uint32_t color)
 {
     int y = pb->height /2;
@@ -83,6 +78,8 @@ void draw_horizontal_line(PixelBuf *pb, uint32_t color)
         pb->pixels[y * pb->width + x] = color;
     }
 }
+
+// Raycast functions
 
 typedef struct RaycastMap {
     int width;
@@ -122,20 +119,15 @@ void fill_raycast_map_with_walls(RaycastMap *map) {
 }
 
 void fill_pixels_with_map(PixelBuf *pb, RaycastMap *map) {
-    int cell_width = pb->width/map->width;
-    int cell_height = pb->height/map->height;
+    for (int y = 0; y < pb->height; ++y) {
+        for (int x = 0; x < pb->width; ++x) {
 
-    for (int my = 0; my < map->height; ++my) {
-        for (int mx = 0; mx < map->width; ++mx) {
-            uint32_t color = (map->cells[my][mx] == 1) ? 0xFFFFFFFF : 0xFF000000;
+            int map_x = x * map->width  / pb->width;
+            int map_y = y * map->height / pb->height;
 
-            for(int py = 0; py < cell_height; ++py) {
-                for (int px = 0; px < cell_width; ++px) {
-                    int px_index = mx * cell_width + px;
-                    int py_index = my * cell_height + py;
-                    pb->pixels[py_index * pb->width + px_index] = color;
-                }
-            }
+            int cell = map->cells[map_y][map_x];
+            uint32_t color = (cell == 1) ? 0xFFFFFFFF: 0xFF000000;
+            pb->pixels[y * pb->width + x] = color;
         }
     }
 }
