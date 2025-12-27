@@ -63,3 +63,13 @@ target_sources(2d_thinking_exercises
  PRIVATE
   ${2D_SRC}
 )
+
+set(RASTER_GRAPHICS_SRC
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/raster_graphics_mini_excercises.c
+  )
+
+add_executable(raster_graphics_mini_excercises)
+target_sources(raster_graphics_mini_excercises
+ PRIVATE
+  ${RASTER_GRAPHICS_SRC}
+)
